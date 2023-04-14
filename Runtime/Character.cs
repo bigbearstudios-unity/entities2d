@@ -1,11 +1,11 @@
 using UnityEngine;
 
-namespace BBUnity.CharacterControllers {
+namespace BBUnity.GameEntities {
 
     /// <summary>
-    /// The base CharacterController component. 
+    ///  
     /// </summary>
-    public class CharacterController : MonoBehaviour {
-
+    public class Character : BaseEntity {
+        
     }
 }

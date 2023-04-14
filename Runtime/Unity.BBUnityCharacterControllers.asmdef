@@ -1,7 +1,9 @@
 {
     "name": "Unity.BBUnityCharacterControllers",
+    "rootNamespace": "",
     "references": [
-        "Unity.BBUnityCore"
+        "Unity.BBUnityCore",
+        "Unity.BBUnityStateMachine"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

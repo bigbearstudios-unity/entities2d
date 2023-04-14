@@ -1,14 +1,13 @@
 {
-  "name": "com.bigbearstudios.bbunity-character-controllers",
+  "name": "com.bigbearstudios.bbunity-game-entities2d",
   "version": "0.0.1",
-  "displayName": "BBUnity Character Controllers",
-  "description": "",
+  "displayName": "BBUnity Game Entities 2D",
   "unity": "2018.3",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/big-bear-studios-open-source/bbunitycharactercontrollers.git"
+    "url": "git+https://gitlab.com/big-bear-studios-open-source/bbunitygameentities2d.git"
   },
-  "bugs": "https://gitlab.com/big-bear-studios-open-source/bbunitycharactercontrollers/-/issues",
+  "bugs": "https://gitlab.com/big-bear-studios-open-source/bbunitygameentities2d/-/issues",
   "author": {
     "name": "Big Bear Studios",
     "email": "development@bigbearstudios.co.uk",
@@ -19,5 +18,10 @@
       "name": "Stuart Farnaby",
       "email": "stuart@bigbearstudios.co.uk"
     }
-  ]
+  ],
+  "dependencies": {
+    "com.bigbearstudios.bbunity-core": "1.4.0",
+    "com.bigbearstudios.bbunity-core2d": "0.2.0",
+    "com.bigbearstudios.bbunity-test-support": "1.2.0"
+  }
 }
