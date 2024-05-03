@@ -1,7 +1,7 @@
 {
   "name": "com.bigbearstudios.bbunity-game-entities2d",
   "version": "0.0.1",
-  "displayName": "BBUnity Game Entities 2D",
+  "displayName": "BBUnity Entities 2D",
   "unity": "2018.3",
   "repository": {
     "type": "git",

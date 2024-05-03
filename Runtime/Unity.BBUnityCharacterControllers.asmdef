@@ -3,7 +3,9 @@
     "rootNamespace": "",
     "references": [
         "Unity.BBUnityCore",
-        "Unity.BBUnityStateMachine"
+        "Unity.BBUnityStateMachine",
+        "Unity.BBUnityCore2D",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
