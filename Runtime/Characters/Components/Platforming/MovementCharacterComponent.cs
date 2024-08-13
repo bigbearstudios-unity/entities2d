@@ -1,8 +1,6 @@
 using UnityEngine;
 
-using BBUnity.Entities;
-using BBUnity.Core2D.Movement;
-using BBUnity.Attributes;
+using BBUnity.Movement;
 
 namespace BBUnity.Entities.Characters.Components.Platforming {
 
@@ -122,11 +120,11 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         // On Awake we should check that it has all of the components
         // which it requires to function. E.g. CollisionCharacterComponent
         public override void Awake() {
-            Debug.Log("Debug::MovementCharacterComponent->Awake");
+
         }
 
         public override void Start() {
-            Debug.Log("Debug::MovementCharacterComponent->Start");
+
         }
 
         public void ApplyHorizontalMovement(float movement) {

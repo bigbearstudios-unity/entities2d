@@ -5,7 +5,8 @@ using BBUnity.Entities.Utilities;
 namespace BBUnity.Entities.Characters.Components.Platforming {
 
     /// <summary>
-    /// 
+    /// TODO
+    /// This entire component needs cleaning up!
     /// </summary>
     [System.Serializable]
     public class InputUnityActionCharacterComponent : InputCharacterComponent {
@@ -22,6 +23,7 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         private InputAction _moveAction = null;
         private InputAction _jumpAction = null;
         private InputAction _attackAction = null;
+        private InputAction _heavyAttackAction = null;
 
         // // TODO 
         // // Move these to be assignable via the Input
@@ -32,23 +34,18 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         [SerializeField]
         private InputBuffer _attackBuffer;
 
-        public override void Awake() {
-            Debug.Log("Debug::InputUnityActionCharacterComponent->Awake");
+        [SerializeField]
+        private InputBuffer _heavyAttackBuffer;
 
-            // TODO
-            // Check we have an input registered...Could we maybe find the
-            // component on the object?
+        public override void Awake() {
+
         }
 
         public override void Start() {
-            Debug.Log("Debug::InputUnityActionCharacterComponent->Start");
-
-            // TODO
-            // Each of the required inputs should be checked
-            // and a debug message sent to the console
             _moveAction = _playerInput.actions["Move"];
             _jumpAction = _playerInput.actions["Jump"];
             _attackAction = _playerInput.actions["Attack"];
+            _heavyAttackAction = _playerInput.actions["HeavyAttack"];
         }
 
         public override void Update() {
@@ -60,6 +57,7 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
             _verticalMovement = movement.y;
 
             _attack = _attackBuffer.Update(GetButtonDown(_attackAction), deltaTime);
+            _heavyAttack = _heavyAttackBuffer.Update(GetButtonDown(_heavyAttackAction), deltaTime);
             _jump = _jumpBuffer.Update(GetButtonDown(_jumpAction), deltaTime);
 
             _endJump = GetButtonUp(_jumpAction);

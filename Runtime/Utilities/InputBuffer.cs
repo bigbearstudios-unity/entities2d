@@ -9,7 +9,7 @@ namespace BBUnity.Entities.Utilities {
     public class InputBuffer {
 
         [SerializeField, Tooltip("")]
-        private float _thresholdTime = 0.1f;
+        private float _thresholdTime = 0.3f;
         private float _timeRemaining = 0.0f;
 
         /// <summary>

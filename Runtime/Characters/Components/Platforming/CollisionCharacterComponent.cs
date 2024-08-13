@@ -1,8 +1,10 @@
 using UnityEngine;
-using BBUnity.Core2D.Physics;
+using BBUnity.Physics2D;
 
 namespace BBUnity.Entities.Characters.Components.Platforming {
 
+
+    // TODO Move this back to the main component
     [System.Serializable]
     public class CollisionCharacterComponentSettings {
         [SerializeField, Tooltip("The bounds of the collision rectangle")] 
@@ -70,8 +72,6 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         private ICollisionCharacterComponent CollisionDelegate { get { return (ICollisionCharacterComponent)_componentDelegate; } }
 
         public override void Awake() {
-            Debug.Log("Debug::CollisionController->Awake");
-
             _collisionRays = new BoundedRays(Bounds);
 
             //TODO
@@ -80,7 +80,7 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         }
 
         public override void Start() {
-            Debug.Log("Debug::CollisionController->Start");
+
         }
 
         public override void Update() {
@@ -98,7 +98,7 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         // }
 
         public Collider2D TestOverlapBoxAt(Vector3 point) {
-            return Physics2D.OverlapBox(point + Bounds.center, Bounds.size, 0, GroundLayers);
+            return UnityEngine.Physics2D.OverlapBox(point + Bounds.center, Bounds.size, 0, GroundLayers);
         }
 
         private void UpdateCollisionRays() {
@@ -119,7 +119,7 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
 
         private bool CheckCollisionFor(BoundedRay ray) {
             foreach(Vector2 point in EvaluateRayPositions(ray)) {
-                if(Physics2D.Raycast(point, ray.Direction, _settings.detectionRayLength, GroundLayers)) {
+                if(UnityEngine.Physics2D.Raycast(point, ray.Direction, _settings.detectionRayLength, GroundLayers)) {
                     return true;
                 }
             }
@@ -147,7 +147,7 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
 
         public override void OnDrawGizmos() {
             if(_renderBoundingGizmo) {
-                if(Physics2D.OverlapBox(transform.position + _settings.bounds.center, _settings.bounds.size, 0, GroundLayers)) {
+                if(UnityEngine.Physics2D.OverlapBox(transform.position + _settings.bounds.center, _settings.bounds.size, 0, GroundLayers)) {
                     Gizmos.color = Color.red;
                 } else {
                     Gizmos.color = Color.yellow;

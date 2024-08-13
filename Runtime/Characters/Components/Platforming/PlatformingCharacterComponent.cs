@@ -1,7 +1,3 @@
-using UnityEngine;
-
-using BBUnity.Entities;
-using BBUnity.Core2D.Movement;
 using BBUnity.Entities.Characters.Platforming;
 
 namespace BBUnity.Entities.Characters.Components.Platforming {
