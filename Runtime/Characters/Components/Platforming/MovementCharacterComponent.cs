@@ -4,19 +4,12 @@ using BBUnity.Movement;
 
 namespace BBUnity.Entities.Characters.Components.Platforming {
 
-    public enum FacingDirection {
-        Left, // Character is facing the Left
-        Right // Character is facing the right
-    }
-
     [System.Serializable]
     public class MovementCharacterComponent : PlatformingCharacterComponent {
 
         [SerializeField]
         private Vector3 _velocity = Vector3.zero;
-        private Vector3 _previousVelocity = Vector3.zero;
         private Vector3 _previousPosition = Vector3.zero;
-        private Vector2 _previousSpeed = Vector2.zero;
 
         [SerializeField]
         private Vector2 _speed = Vector2.zero;
@@ -104,13 +97,6 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
 
         public float HorizontalVelocity { get { return _velocity.x; } }
         public float VerticalVelocity { get { return _velocity.y; } }
-
-        private FacingDirection _direction =  FacingDirection.Right;
-        public bool IsFacingRight { get { return _direction == FacingDirection.Right; } }
-        public bool IsFacingLeft { get { return _direction == FacingDirection.Left; } }
-
-        private bool HasDelegate { get { return _componentDelegate != null; } }
-        private IMovementCharacterComponent MovementDelegate { get { return (IMovementCharacterComponent)_componentDelegate; } }
 
         public bool CanJump { 
             get { return CollisionComponent.CollidedDown ? true : _coyoteTime.IsAvailable; }
@@ -209,13 +195,8 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
              */
             CalculateMovementUpdate();
 
-            _previousVelocity = _velocity;
             _velocity = (transform.position - _previousPosition) / Time.deltaTime;
             _previousPosition = transform.position;
-        }
-
-        public void SetDelegate(IMovementCharacterComponent controllerDelegate) {
-            _componentDelegate = controllerDelegate;
         }
 
         public void ZeroSpeed() {

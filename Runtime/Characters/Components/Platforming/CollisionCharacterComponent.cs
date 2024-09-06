@@ -69,8 +69,6 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         public LayerMask GroundLayers { get { return _settings.groundLayers; } }
         public Vector3 BoundedPosition { get { return transform.position + _settings.bounds.center; } }
 
-        private ICollisionCharacterComponent CollisionDelegate { get { return (ICollisionCharacterComponent)_componentDelegate; } }
-
         public override void Awake() {
             _collisionRays = new BoundedRays(Bounds);
 
