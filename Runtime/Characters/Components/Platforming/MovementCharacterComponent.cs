@@ -68,7 +68,7 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         private float _fallSpeed = 0.0f;
         private float _distanceToApexPoint = 0.0f;
 
-        [SerializeField, ReadOnly]
+        [SerializeField, EditorAttributes.ReadOnly]
         private bool _endJumpEarly = false;
 
         [Header("Coyote Time")]
@@ -110,7 +110,7 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         }
 
         public override void Start() {
-
+            _previousPosition = transform.position;
         }
 
         public void ApplyHorizontalMovement(float movement) {

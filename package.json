@@ -1,13 +1,14 @@
 {
-  "name": "com.bigbearstudios.bbunity-game-entities2d",
+  "name": "com.bigbearstudios.bbunity-entities2d",
   "version": "0.0.1",
   "displayName": "BBUnity Entities 2D",
+  "description": "Collection of entities which can be used to created 2D games",
   "unity": "2018.3",
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/big-bear-studios-open-source/bbunitygameentities2d.git"
+    "url": "https://github.com/bigbearstudios-unity/entities2d.git"
   },
-  "bugs": "https://gitlab.com/big-bear-studios-open-source/bbunitygameentities2d/-/issues",
+  "bugs": "https://github.com/bigbearstudios-unity/entities2d/issues",
   "author": {
     "name": "Big Bear Studios",
     "email": "development@bigbearstudios.co.uk",
@@ -20,8 +21,9 @@
     }
   ],
   "dependencies": {
-    "com.bigbearstudios.bbunity-core": "1.4.0",
-    "com.bigbearstudios.bbunity-core2d": "0.2.0",
-    "com.bigbearstudios.bbunity-test-support": "1.2.0"
+    "com.bigbearstudios.bbunity-core": "5.1.0",
+    "com.bigbearstudios.bbunity-core2d": "0.3.1",
+    "com.bigbearstudios.bbunity-test-support": "2.1.1",
+    "com.bigbearstudios.bbunity-gameplay": "0.1.0"
   }
 }

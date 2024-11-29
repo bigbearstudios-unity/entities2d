@@ -1,6 +1,8 @@
 using UnityEngine;
 using BBUnity.Entities.Characters.Components;
 
+// TODO
+// Delete this and move to the Character.Controllers
 namespace BBUnity.Entities.Characters {
 
     /// <summary>

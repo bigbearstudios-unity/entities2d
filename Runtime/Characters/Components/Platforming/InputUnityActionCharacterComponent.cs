@@ -25,6 +25,8 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         private InputAction _attackAction = null;
         private InputAction _heavyAttackAction = null;
 
+        private InputAction _rollAction = null;
+
         // // TODO 
         // // Move these to be assignable via the Input
         // // Actions. E.g. Checkbox -> bufferable, int -> threashold
@@ -37,6 +39,9 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         [SerializeField]
         private InputBuffer _heavyAttackBuffer;
 
+        [SerializeField]
+        private InputBuffer _rollBuffer;
+
         public override void Awake() {
 
         }
@@ -46,6 +51,7 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
             _jumpAction = _playerInput.actions["Jump"];
             _attackAction = _playerInput.actions["Attack"];
             _heavyAttackAction = _playerInput.actions["HeavyAttack"];
+            _rollAction = _playerInput.actions["Roll"];
         }
 
         public override void Update() {
@@ -59,6 +65,7 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
             _attack = _attackBuffer.Update(GetButtonDown(_attackAction), deltaTime);
             _heavyAttack = _heavyAttackBuffer.Update(GetButtonDown(_heavyAttackAction), deltaTime);
             _jump = _jumpBuffer.Update(GetButtonDown(_jumpAction), deltaTime);
+            _roll = _rollBuffer.Update(GetButtonDown(_rollAction), deltaTime);
 
             _endJump = GetButtonUp(_jumpAction);
             _endAttack = GetButtonUp(_attackAction);

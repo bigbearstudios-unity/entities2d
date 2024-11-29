@@ -1,17 +1,22 @@
 using System;
 using UnityEngine;
 
-using BBUnity.Physics2D;
+using BBUnity.Entities.Controllers.Base;
 
-namespace BBUnity.Entities.Characters.Components.Platforming.Controllers {
+namespace BBUnity.Entities.Characters.Controllers.Platforming {
     
     /// <summary>
     /// A single controller responsible for all movement on a platforming
-    /// based character. This handles the following:
-    /// - 
+    /// based character. This should be used for complicated movements. E.g. Player movement, Boss movement
+    /// This class handles the following:
+    /// - Collisions
+    /// - Movement
+    /// 
+    /// All inputs to this system are handled externally. E.g. Via the CharacterUnityInputController or
+    /// via raw inputs. See examples...
     /// </summary>
     [Serializable]
-    public class CharacterMovementController : MonoBehaviour {
+    public class CharacterMovementController : EntityController {
 
         [Header("Collision Settings")]
 
@@ -37,8 +42,6 @@ namespace BBUnity.Entities.Characters.Components.Platforming.Controllers {
 
         [SerializeField, Tooltip("The maximum horizontal speed the object can achieve")] 
         private float _movementMaximumHorizontalSpeed = 8.0f;
-
-
 
         private void Awake() {
 

@@ -4,6 +4,8 @@ using UnityEngine;
 using BBUnity.Entities.Characters.Components;
 using BBUnity.Entities.Characters.Components.Platforming;
 
+// TODO
+// Delete this and move to the Character.Controllers
 namespace BBUnity.Entities.Characters.Platforming {
     public class PlatformingCharacter : Character {
 

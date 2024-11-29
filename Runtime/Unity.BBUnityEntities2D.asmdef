@@ -1,10 +1,12 @@
 {
-    "name": "Unity.BBUnityCharacterControllers",
+    "name": "Unity.BBUnityEntities2D",
     "rootNamespace": "",
     "references": [
         "Unity.BBUnityCore",
         "Unity.BBUnityCore2D",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.BBUnityGameplay",
+        "Unity.BBUnityStateMachine"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

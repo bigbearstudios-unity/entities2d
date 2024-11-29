@@ -11,6 +11,8 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
         protected bool _jump = false;
         protected bool _endJump = false;
 
+        protected bool _roll = false;
+
         protected bool _attack = false;
         protected bool _heavyAttack = false;
         protected bool _endAttack = false;
@@ -23,6 +25,8 @@ namespace BBUnity.Entities.Characters.Components.Platforming {
 
         public bool Jump { get { return _jump; } }
         public bool EndJump { get { return _endJump; } }
+
+        public bool Roll { get { return _roll; } }
 
         public bool Attack { get { return _attack; } }
         public bool HeavyAttack { get { return _heavyAttack; } }
