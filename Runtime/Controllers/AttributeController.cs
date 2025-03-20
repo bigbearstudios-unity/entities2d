@@ -3,6 +3,7 @@ using UnityEngine;
 
 using BBUnity.Gameplay.Attributes.Base;
 using BBUnity.Entities.Controllers.Base;
+using System.Linq;
 
 namespace BBUnity.Gameplay.Attributes {
 
@@ -15,6 +16,7 @@ namespace BBUnity.Gameplay.Attributes {
     /// The only real functionality of this controller is to call 'Reset' on the
     /// Attributes
     /// </summary>
+    [DefaultExecutionOrder(10)]
     public class AttributeController : EntityController {
 
         Attribute[] _attributes;
@@ -29,8 +31,6 @@ namespace BBUnity.Gameplay.Attributes {
             foreach(Attribute attribute in _attributes) {
                 attribute.Reset();
             }
-
-            Initialize();
         }
 
         protected virtual void Update() {

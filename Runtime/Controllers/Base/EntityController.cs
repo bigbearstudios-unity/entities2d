@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace BBUnity.Entities.Controllers.Base {
@@ -12,12 +14,26 @@ namespace BBUnity.Entities.Controllers.Base {
 
         protected virtual void Initialize() { }
         
+        /// <summary>
+        /// Finds a given set of fields via Reflection
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         protected T[] FindReflectedFields<T>() {
-            System.Reflection.BindingFlags bindingFlags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
-            System.Reflection.FieldInfo[] fields = GetType().GetFields(bindingFlags);
+            BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            
+            List<FieldInfo> fields = new List<FieldInfo>();
+            Type baseType = GetType();
+            do {
+                foreach(FieldInfo field in baseType.GetFields(bindingFlags)) {
+                    fields.Add(field);
+                }
+
+                baseType = baseType.BaseType;
+            } while(baseType != null);
 
             List<T> toReturn = new List<T>();
-            foreach(System.Reflection.FieldInfo field in fields) {
+            foreach(FieldInfo field in fields) {
                 if(field.FieldType.IsSubclassOf(typeof(T))){
                     toReturn.Add((T)field.GetValue(this));
                 }

@@ -12,9 +12,12 @@ namespace BBUnity.Entities.Controllers {
     /// - Control of the animation events
     /// </summary>
     public class AnimationController : EntityController {
+        internal class InvalidAnimatorException  : System.Exception {
+            public InvalidAnimatorException() : base("An Animator component is required for the Animator Controller to function") { }
+        }
 
-        Animator _animator;
-        Dictionary<string, bool> _animationEvents = new Dictionary<string, bool>();
+        private Animator _animator;
+        private Dictionary<string, bool> _animationEvents = new Dictionary<string, bool>();
 
         public bool AnimationComplete {
             get { return _animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1.0f; }
@@ -26,6 +29,8 @@ namespace BBUnity.Entities.Controllers {
 
         private void Awake() {
             _animator = GetComponent<Animator>();
+
+            if(_animator == null) {  throw new InvalidAnimatorException(); }
         }
 
         public void SetEventBoolean(string eventName, bool booleanValue) {
@@ -62,8 +67,14 @@ namespace BBUnity.Entities.Controllers {
          * Public API
          */
 
-        public void Play(string stateName) {
-            _animator.Play(stateName);
+        /// <summary>
+        /// Utility method for calling 'Play' on the animator instance
+        /// </summary>
+        /// <param name="stateName"></param>
+        /// <param name="layer"></param>
+        /// <param name="normalizedTime"></param>
+        public void Play(string stateName, int layer = -1, float normalizedTime = 0.0f) {
+            _animator.Play(stateName, layer, normalizedTime);
         }
     }
 }

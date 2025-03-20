@@ -13,8 +13,8 @@ namespace BBUnity.Entities {
          * Note - These are not your standard Unity calls, but are called
          * as part of those methods which are used by the base Characters
          */
-        protected virtual void OnAwake() { }
-        protected virtual void OnStart() { }
-        protected virtual void OnUpdate() { }
+        // protected virtual void OnAwake() { }
+        // protected virtual void OnStart() { }
+        // protected virtual void OnUpdate() { }
     }
 }

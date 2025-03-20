@@ -4,38 +4,27 @@ using System.Collections.Generic;
 
 using BBUnity.StateMachines;
 using BBUnity.Entities.Controllers.Base;
-using BBUnity.Gameplay.Attributes;
-
-using BBUnity.Entities.Characters.Components.Platforming;
+using BBUnity.EditorAttributes;
 
 namespace BBUnity.Entities.Controllers {
 
-    /// <summary>
-    /// 
-    /// </summary>
     public class EntityState : State {
 
-        private StateController _controller;
+        protected StateController _stateController;
 
-        protected AnimationController AnimationController {
-            get { return _controller.animationController; }
-        }
-
-        protected AttributeController AttributeController {
-            get { return _controller.attributeController; }
-        }
-
-        protected EffectController EffectController {
-            get { return _controller.effectController; }
+        public StateController StateController {
+            get { return _stateController; }
         }
 
         internal void SetStateController(StateController controller) {
-            _controller = controller;
+            _stateController = controller;
+        }
+        
+        protected T GetComponent<T>() {
+            return _stateController.GetComponent<T>();
         }
 
-        protected T FindController<T>() {
-            return _controller.GetComponent<T>();
-        }
+        public virtual void Start() {}
     }
 
     sealed public class EntityStateParameter {
@@ -63,11 +52,11 @@ namespace BBUnity.Entities.Controllers {
         }
     }
 
+    // TODO
+    // We should figure out a way to remove the ability to add 'State' to the state machine
+    // here and enforce the 'EntityState' being required
 
-    /// <summary>
-    /// Statemachine Controller
-    /// </summary>
-    [AddComponentMenu("")]
+    [AddComponentMenu(""), DefaultExecutionOrder(10)]
     public class StateController : EntityController {
 
         /// <summary>
@@ -75,25 +64,24 @@ namespace BBUnity.Entities.Controllers {
         /// </summary>
         StateMachine _stateMachine = new StateMachine();
 
-        internal AnimationController animationController;
-        internal AttributeController attributeController;
-        internal EffectController effectController;
+        [SerializeField, ReadOnly]
+        private string _currentState = "Not Set";
 
-        private void Awake() {
-            animationController = GetComponent<AnimationController>();
-            attributeController = GetComponent<AttributeController>();
-            effectController = GetComponent<EffectController>();
-        }
+        protected virtual void RegisterStates() {}
 
-        private void Start() {
-            Initialize();
+        protected void Start() {
+            RegisterStates();
         }
 
         /// <summary>
         ///
         /// </summary>
-        private void Update() {
+        protected void Update() {
             _stateMachine.Update();
+
+            if(_stateMachine.CurrentState != null) {
+                _currentState = _stateMachine.CurrentState.ReferenceKey;
+            }
         }
 
         /// <summary>
@@ -103,9 +91,14 @@ namespace BBUnity.Entities.Controllers {
         /// <param name="state"></param>
         /// <param name="setState"></param>
         public void AddState(string key, EntityState state, bool setState = false) {
-            state.SetStateController(this);
+            _stateMachine.AddState(key, state);
 
-            _stateMachine.AddState(key, state, setState);
+            state.SetStateController(this);
+            state.Start();
+
+            if(setState) {
+                _stateMachine.SetState(key, true);
+            }
         }
 
         /// <summary>

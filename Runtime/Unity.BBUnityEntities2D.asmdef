@@ -4,9 +4,10 @@
     "references": [
         "Unity.BBUnityCore",
         "Unity.BBUnityCore2D",
-        "Unity.InputSystem",
         "Unity.BBUnityGameplay",
-        "Unity.BBUnityStateMachine"
+        "Unity.BBUnityStateMachine",
+        "Unity.InputSystem",
+        "Unity.BBUnityPools"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
