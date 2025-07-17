@@ -17,6 +17,14 @@ namespace BBUnity.Entities.Controllers.Input.Actions {
             get { return _movement.y; }
         }
 
+        public bool HasYMovement {
+            get { return _movement.y < 0.0f; }
+        }
+
+        public bool HasXMovement {
+            get { return _movement.x > 0.0f; }
+        }
+
         public UnityInputAxisAction(PlayerInput input, UnityAxisActionMapping mapping) : base(input, mapping) {
             _movement = Vector2.zero;
         }

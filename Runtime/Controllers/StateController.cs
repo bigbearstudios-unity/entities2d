@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using BBUnity.StateMachines;
 using BBUnity.Entities.Controllers.Base;
 using BBUnity.EditorAttributes;
+using BBUnity.Gameplay.Attributes;
 
 namespace BBUnity.Entities.Controllers {
 
@@ -56,7 +57,7 @@ namespace BBUnity.Entities.Controllers {
     // We should figure out a way to remove the ability to add 'State' to the state machine
     // here and enforce the 'EntityState' being required
 
-    [AddComponentMenu(""), DefaultExecutionOrder(10)]
+    [AddComponentMenu(""), DefaultExecutionOrder(5)]
     public class StateController : EntityController {
 
         /// <summary>

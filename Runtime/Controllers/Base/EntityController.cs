@@ -11,7 +11,6 @@ namespace BBUnity.Entities.Controllers.Base {
     /// The base controller for all entity controllers. 
     /// </summary>
     public class EntityController : MonoBehaviour, IEntityController {
-
         protected virtual void Initialize() { }
         
         /// <summary>
