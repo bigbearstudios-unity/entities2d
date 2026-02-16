@@ -38,7 +38,7 @@ namespace BBUnity.Entities.Controllers {
     /// Controller to aid with the calling / rendering of effects
     /// </summary>
     public class EffectController : EntityController {
-        
+
         [SerializeField]
         private List<EffectReference> _effects = new List<EffectReference>();
 
@@ -46,13 +46,20 @@ namespace BBUnity.Entities.Controllers {
 
         private void Awake() {
             ObjectPool pool = ObjectPool.FindInScene("Effect Pool");
-            if(pool == null) {
-                pool = Utilities.Create.GameObject("Effect Pool", new [] { typeof(ObjectPool) }).GetComponent<ObjectPool>();
-            }
+            pool ??= Utilities.Create.GameObject("Effect Pool", new[] { typeof(ObjectPool) }).GetComponent<ObjectPool>();
 
-            foreach(EffectReference effectReference in _effects) {
+            foreach (EffectReference effectReference in _effects) {
+                if (effectReference.Name == null) {
+                    
+                }
+
+                if (effectReference.Prefab == null) {
+                    Debug.LogError("");
+                    continue;
+                }
+
                 ObjectPoolReference poolReference = pool.FindPoolReference(effectReference.Name);
-                if(poolReference == null) {
+                if (poolReference == null) {
                     poolReference = new ObjectPoolReference(effectReference.Name, effectReference.Prefab, 1, 100);
                     pool.AddPoolReference(poolReference);
                 }
@@ -64,13 +71,21 @@ namespace BBUnity.Entities.Controllers {
             }
         }
 
-        private void InstantiateEffect(string name) {
+        public void InstantiateEffect(string name) {
             EffectDictionaryReference reference = _internalEffects[name];
 
             PoolBehaviour obj = reference._poolReference.Spawn();
 
             obj.transform.position = reference._effectReference.Position.position;
             obj.transform.localScale = gameObject.transform.localScale;
+        }
+
+        public void InstantiateEffect(string name, Vector3 position) {
+            EffectDictionaryReference reference = _internalEffects[name];
+
+            PoolBehaviour obj = reference._poolReference.Spawn();
+            obj.transform.localScale = gameObject.transform.localScale;
+            obj.transform.position = position;
         }
     }
 }

@@ -6,7 +6,12 @@ using BBUnity.Entities.Controllers.Platforming.Internal;
 
 namespace BBUnity.Entities.Controllers.Platforming {
 
-    public class CollisionState {
+    /// <summary>
+    /// CollisionState
+    /// Stores the internal collision state of a given direction. E.g. Up, Down, Left, Right
+    /// and allows each of these states to be interrogated
+    /// </summary>
+    internal sealed class CollisionState {
         bool _currentFrame;
         bool _previousFrame;
 
@@ -24,14 +29,28 @@ namespace BBUnity.Entities.Controllers.Platforming {
         }
     }
 
-    public class MovementState {
-        CollisionState _up = new();
-        CollisionState _down = new();
-        CollisionState _right = new();
-        CollisionState _left = new();
+    public sealed class MovementState {
 
+        /*
+         * The CollisionState for each direction
+         */
+        private CollisionState _up = new();
+        private CollisionState _down = new();
+        private CollisionState _right = new();
+        private CollisionState _left = new();
+
+        /*
+         * The internal velocity, this will be updated every frame
+         */
         Vector2 _velocity = Vector2.zero;
 
+        /// <summary>
+        /// Internal method to set the current collision states for each direction
+        /// </summary>
+        /// <param name="up"></param>
+        /// <param name="down"></param>
+        /// <param name="right"></param>
+        /// <param name="left"></param>
         internal void SetCollisionState(bool up = false, bool down = false, bool right = false, bool left = false) {
             _up.SetState(up);
             _down.SetState(down);
@@ -39,6 +58,11 @@ namespace BBUnity.Entities.Controllers.Platforming {
             _left.SetState(left);
         }
 
+        /// <summary>
+        /// Internal method to set the velocity on the state. This will kept it
+        /// in-sync with the velocity on the controller.
+        /// </summary>
+        /// <param name="velocity"></param>
         internal void SetVelocity(Vector2 velocity) {
             _velocity = velocity;
         }
@@ -71,6 +95,10 @@ namespace BBUnity.Entities.Controllers.Platforming {
             get { return _up.CurrentFrame; }
         }
 
+        public Vector3 Velocity {
+            get { return _velocity; }
+        }
+
         public bool IsMovingHorizontally {
             get { return _velocity.x > float.Epsilon || _velocity.x < -float.Epsilon; }
         }
@@ -92,36 +120,50 @@ namespace BBUnity.Entities.Controllers.Platforming {
         }
     }
 
+    [RequireComponent(typeof(Rigidbody2D), typeof(CapsuleCollider2D))]
     public class PlayerMovementController : EntityController {
 
         /*
          * Configuration
          */
-        [Header("Collision"), SerializeField, Tooltip("")]
+
+        /* ---------------------------------------------*/
+        [Header("Collision")]
+
+        [SerializeField,Tooltip("")]
         private LayerMask _staticLayers;
-        
-        [Tooltip(""), SerializeField]
+
+        [SerializeField, Tooltip("")]
         private LayerMask _platformLayers;
 
-        [Tooltip(""), SerializeField]
+        [SerializeField, Tooltip("")]
         private float _collisionDistance = 0.05f;
 
-        [Header("Hoizontal Movement"), SerializeField, Tooltip("")]
+        /* ---------------------------------------------*/
+        [Header("Hoizontal Movement")]
+
+        [SerializeField, Tooltip("")]
         private float _horizontalMaxmumSpeed = 9.0f;
 
-        [Tooltip(""), SerializeField]
+        [SerializeField, Tooltip("")]
         private float _horizontalAcceleration = 120.0f;
 
-        [Tooltip(""), SerializeField]
+        [SerializeField, Tooltip("")]
         private float _horizontalGroundedDeceleration = 60.0f;
 
-        [Tooltip(""), SerializeField]
+        [SerializeField, Tooltip("")]
         private float _horizontalAirborneDeleration = 30.0f;
 
-        [Header("Movement Modifiers"), SerializeField, Tooltip("")]
+        /* ---------------------------------------------*/
+        [Header("Movement Modifiers")]
+
+        [SerializeField, Tooltip("")]
         private bool _snapInputMovement = true;
 
-        [Header("Vertical Movement"), SerializeField, Tooltip("")]
+        /* ---------------------------------------------*/
+        [Header("Vertical Movement")]
+
+        [SerializeField, Tooltip("")]
         private float _verticalGroundingForce = 0.05f;
 
         [SerializeField, Tooltip("The force applied in order to 'jump'")]
@@ -133,7 +175,10 @@ namespace BBUnity.Entities.Controllers.Platforming {
         [SerializeField, Tooltip("")]
         private float _verticalFallAcceleration = 110.0f;
 
-        [Header("Jump Modifiers"), SerializeField, Tooltip("")]
+        /* ---------------------------------------------*/
+        [Header("Jump Modifiers")]
+
+        [SerializeField, Tooltip("")]
         private float _earlyJumpReleaseGravityModifier = 3;
         private bool _earlyJumpReleaseActive = false;
 
@@ -142,6 +187,8 @@ namespace BBUnity.Entities.Controllers.Platforming {
 
         /*
          * Required Unity Components
+         * These are required using the attribure RequiredComponents and are needed for the function
+         * of this controller.
          */
 
         private Rigidbody2D _rigidbody;
@@ -149,16 +196,17 @@ namespace BBUnity.Entities.Controllers.Platforming {
 
         /*
          * Internal State Management
+         * This exposes the internal state of the collection / 
          */
 
         [SerializeField]
         private MovementState _state = new();
         private InputState _inputState = new();
-        
+
         public MovementState State {
             get { return _state; }
         }
-       
+
         /*
          * Computed Variables
          */
@@ -168,18 +216,18 @@ namespace BBUnity.Entities.Controllers.Platforming {
 
         private void Awake() {
             _rigidbody = GetComponent<Rigidbody2D>();
-            if(_rigidbody == null) { throw new System.Exception("A 'Rigidbody' component is required"); }
+            if (_rigidbody == null) { throw new System.Exception("A 'Rigidbody' component is required"); }
 
             _capsuleCollider = GetComponent<CapsuleCollider2D>();
-            if(_capsuleCollider == null) { throw new System.Exception("A 'CapsuleCollider2D' component is required"); }
+            if (_capsuleCollider == null) { throw new System.Exception("A 'CapsuleCollider2D' component is required"); }
         }
 
         // This method is going to be pretty bad in terms of size, we might need to consider changing its
         // call signiture
         public void ApplyMovement(
-            float horizontalMovement, 
-            bool jump = false, 
-            bool jumpPressed = false, 
+            float horizontalMovement,
+            bool jump = false,
+            bool jumpPressed = false,
             float horizontalAcceleration = 0.0f,
             bool fallThroughPlatforms = false
             ) {
@@ -188,15 +236,15 @@ namespace BBUnity.Entities.Controllers.Platforming {
         }
 
         public void TogglePlatformCollision(float toogleBackAfter = 0.4f) {
-            if(_togglingPlatformCollisions) { return; }
+            if (_togglingPlatformCollisions) { return; }
 
             StartCoroutine(TogglePlatformCollisionsOver(toogleBackAfter));
         }
 
         private int LayerMaskToLayer(int bitmask) {
-            int result = bitmask>0 ? 0 : 31;
-            while( bitmask>1 ) {
-                bitmask = bitmask>>1;
+            int result = bitmask > 0 ? 0 : 31;
+            while (bitmask > 1) {
+                bitmask = bitmask >> 1;
                 result++;
             }
             return result;
@@ -206,11 +254,11 @@ namespace BBUnity.Entities.Controllers.Platforming {
         private IEnumerator TogglePlatformCollisionsOver(float waitTime) {
             _togglingPlatformCollisions = true;
 
-            Physics2D.IgnoreLayerCollision(gameObject.layer ,LayerMaskToLayer(_platformLayers), true);
+            Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMaskToLayer(_platformLayers), true);
             yield return new WaitForSeconds(waitTime);
 
             _togglingPlatformCollisions = false;
-            Physics2D.IgnoreLayerCollision(gameObject.layer ,LayerMaskToLayer(_platformLayers), false);
+            Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMaskToLayer(_platformLayers), false);
         }
 
         public void ApplyZeroHorizontalMovement() {
@@ -240,11 +288,11 @@ namespace BBUnity.Entities.Controllers.Platforming {
 
             _state.SetCollisionState(up: ceilingStaticHit, down: groundStaticHit || groundPlatformHit);
 
-            if(_state.IsHittingHead) {
+            if (_state.IsHittingHead) {
                 _velocity.y = Mathf.Min(0, _velocity.y);
             }
 
-            if(_state.IsGrounded) {
+            if (_state.IsGrounded) {
                 _earlyJumpReleaseActive = false;
             }
 
@@ -252,8 +300,8 @@ namespace BBUnity.Entities.Controllers.Platforming {
         }
 
         private void ApplyVerticalMovement() {
-            if(_state.IsGrounded) {
-                if(_inputState.Jump) {
+            if (_state.IsGrounded) {
+                if (_inputState.Jump) {
                     ApplyJumpForce();
                 }
             }
@@ -264,23 +312,21 @@ namespace BBUnity.Entities.Controllers.Platforming {
         }
 
         private void ApplyHorizontalMovement() {
-            if(_inputState.HasHorizontalMovement) {
+            if (_inputState.HasHorizontalMovement) {
                 _velocity.x = Mathf.MoveTowards(_velocity.x, _inputState.HorizontalMovement * _horizontalMaxmumSpeed, _horizontalAcceleration * Time.fixedDeltaTime);
-            }
-            else {
+            } else {
                 var deceleration = _state.IsGrounded ? _horizontalGroundedDeceleration : _horizontalAirborneDeleration;
                 _velocity.x = Mathf.MoveTowards(_velocity.x, 0, deceleration * Time.fixedDeltaTime);
             }
         }
 
         private void ApplyGravity() {
-            if(_state.IsGrounded && _velocity.y <= 0.0f) {
+            if (_state.IsGrounded && _velocity.y <= 0.0f) {
                 _velocity.y = _verticalGroundingForce;
-            }
-            else {
+            } else {
                 var inAirGravity = _verticalFallAcceleration;
 
-                if(!_inputState.JumpPressed && _velocity.y > 0) {
+                if (!_inputState.JumpPressed && _velocity.y > 0) {
                     inAirGravity *= _earlyJumpReleaseGravityModifier;
                 }
 

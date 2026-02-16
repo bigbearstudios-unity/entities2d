@@ -11,6 +11,11 @@ namespace BBUnity.Entities.Controllers.Base {
     /// The base controller for all entity controllers. 
     /// </summary>
     public class EntityController : MonoBehaviour, IEntityController {
+
+        /// <summary>
+        /// The virtual Initalize method for all controllers. This can be overridden 
+        /// by the developer
+        /// </summary>
         protected virtual void Initialize() { }
         
         /// <summary>

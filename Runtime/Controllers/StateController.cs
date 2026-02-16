@@ -1,5 +1,6 @@
 using UnityEngine;
 
+using System;
 using System.Collections.Generic;
 
 using BBUnity.StateMachines;
@@ -7,26 +8,9 @@ using BBUnity.Entities.Controllers.Base;
 using BBUnity.EditorAttributes;
 using BBUnity.Gameplay.Attributes;
 
+using BBUnity.Entities.Controllers.States;
+
 namespace BBUnity.Entities.Controllers {
-
-    public class EntityState : State {
-
-        protected StateController _stateController;
-
-        public StateController StateController {
-            get { return _stateController; }
-        }
-
-        internal void SetStateController(StateController controller) {
-            _stateController = controller;
-        }
-        
-        protected T GetComponent<T>() {
-            return _stateController.GetComponent<T>();
-        }
-
-        public virtual void Start() {}
-    }
 
     sealed public class EntityStateParameter {
         private string _key;
@@ -38,8 +22,8 @@ namespace BBUnity.Entities.Controllers {
         public bool SetCurrentState { get { return _setCurrentState; } }
 
         public EntityStateParameter(string key, EntityState state, bool setCurrentState = false) {
-            if(key == null) throw new System.ArgumentNullException("key");
-            if(state == null) throw new System.ArgumentNullException("state");
+            if (key == null) throw new System.ArgumentNullException("key");
+            if (state == null) throw new System.ArgumentNullException("state");
 
             _key = key;
             _state = state;
@@ -68,7 +52,7 @@ namespace BBUnity.Entities.Controllers {
         [SerializeField, ReadOnly]
         private string _currentState = "Not Set";
 
-        protected virtual void RegisterStates() {}
+        protected virtual void RegisterStates() { }
 
         protected void Start() {
             RegisterStates();
@@ -80,7 +64,7 @@ namespace BBUnity.Entities.Controllers {
         protected void Update() {
             _stateMachine.Update();
 
-            if(_stateMachine.CurrentState != null) {
+            if (_stateMachine.CurrentState != null) {
                 _currentState = _stateMachine.CurrentState.ReferenceKey;
             }
         }
@@ -97,7 +81,7 @@ namespace BBUnity.Entities.Controllers {
             state.SetStateController(this);
             state.Start();
 
-            if(setState) {
+            if (setState) {
                 _stateMachine.SetState(key, true);
             }
         }
@@ -107,7 +91,7 @@ namespace BBUnity.Entities.Controllers {
         /// </summary>
         /// <param name="states"></param>
         public void AddStates(EntityStateParameters stateParameters) {
-            foreach(EntityStateParameter p in stateParameters) {
+            foreach (EntityStateParameter p in stateParameters) {
                 AddState(p.Key, p.State, p.SetCurrentState);
             }
         }

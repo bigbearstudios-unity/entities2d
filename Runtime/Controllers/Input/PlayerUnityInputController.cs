@@ -8,14 +8,11 @@ using BBUnity.Entities.Controllers.Input.Actions;
 
 namespace BBUnity.Entities.Controllers.Input {
 
-    internal class InvalidPlayerInputObjectException  : System.Exception {
+    internal class InvalidPlayerInputObjectException : System.Exception {
         public InvalidPlayerInputObjectException() : base("A Player Input object is required by the UnityPlayerInputController") { }
     }
 
-
-    /// <summary>
-    /// 
-    /// </summary>
+    [RequireComponent(typeof(PlayerInput))]
     public class PlayerUnityInputController : InputController {
         [SerializeField, Tooltip("The reference to the Unity Player Input Component")]
         private PlayerInput _playerInput = null;

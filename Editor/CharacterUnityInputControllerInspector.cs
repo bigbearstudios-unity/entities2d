@@ -11,11 +11,16 @@ public class PlayerUnityInputControllerEditor : Editor {
     }
    
     public override void OnInspectorGUI () {
-        DrawDefaultInspector();
+        serializedObject.Update();
+		EditorGUILayout.PropertyField(serializedObject.FindProperty("_playerInput"));
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("_actionMappings"));
+		serializedObject.ApplyModifiedProperties();
+
+        // DrawDefaultInspector();
 
         // TODO Add some warnings when stuff isn't added / setup
 
-        if(GUILayout.Button("Add Action")) {
+        if (GUILayout.Button("Add Action")) {
             Controller._Editor_AddButtonMapping();
         }
 

@@ -17,7 +17,5 @@ namespace BBUnity.Entities.Controllers {
 
         public bool HasHorizontalMovement { get { return _horizontalMovement != 0.0f; } }
         public bool HasVerticalMovement { get { return _verticalMovement != 0.0f; } }
-
-        
     }
 }
