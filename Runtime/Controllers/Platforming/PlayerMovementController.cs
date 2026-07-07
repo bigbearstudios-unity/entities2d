@@ -344,9 +344,14 @@ namespace BBUnity.Entities.Controllers.Platforming {
         }
 
         private void ApplySlopeMovement() {
-            // Skip when airborne, on flat ground, standing still, or jumping this frame
-            // (jumping must preserve the full vertical jump force, not the slope's y component).
-            if (!_state.IsGrounded || _groundNormal == Vector2.up || Mathf.Abs(_velocity.x) < float.Epsilon || _inputState.Jump) {
+            // Skip when airborne, on flat ground, or jumping this frame, (jumping must preserve the full vertical jump force, not the slope's y component).
+            if (!_state.IsGrounded || _groundNormal == Vector2.up || _inputState.Jump) {
+                return;
+            }
+
+            if (Mathf.Abs(_velocity.x) < float.Epsilon) {
+                _velocity.x = 0f;
+                _velocity.y = -Physics2D.gravity.y * _rigidbody.gravityScale * Time.fixedDeltaTime;
                 return;
             }
 
