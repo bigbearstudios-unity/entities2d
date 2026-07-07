@@ -185,6 +185,12 @@ namespace BBUnity.Entities.Controllers.Platforming {
         [SerializeField, Tooltip("")]
         private float _coyoteTime = 0.15f;
 
+        /* ---------------------------------------------*/
+        [Header("Slope Handling")]
+
+        [SerializeField, Tooltip("Extra downward cast distance when already grounded and moving horizontally, to keep contact over downhill slope edges")]
+        private float _slopeStickDistance = 0.3f;
+
         /*
          * Required Unity Components
          * These are required using the attribure RequiredComponents and are needed for the function
@@ -213,13 +219,12 @@ namespace BBUnity.Entities.Controllers.Platforming {
         [SerializeField]
         private Vector2 _velocity;
 
+        private Vector2 _groundNormal = Vector2.up;
+
 
         private void Awake() {
-            _rigidbody = GetComponent<Rigidbody2D>();
-            if (_rigidbody == null) { throw new System.Exception("A 'Rigidbody' component is required"); }
-
-            _capsuleCollider = GetComponent<CapsuleCollider2D>();
-            if (_capsuleCollider == null) { throw new System.Exception("A 'CapsuleCollider2D' component is required"); }
+            _rigidbody = GetComponent<Rigidbody2D>() ?? throw new System.Exception("A 'Rigidbody' component is required");
+            _capsuleCollider = GetComponent<CapsuleCollider2D>() ?? throw new System.Exception("A 'CapsuleCollider2D' component is required");
         }
 
         // This method is going to be pretty bad in terms of size, we might need to consider changing its
@@ -272,6 +277,7 @@ namespace BBUnity.Entities.Controllers.Platforming {
             ApplyVerticalMovement();
             ApplyHorizontalMovement();
             ApplyGravity();
+            ApplySlopeMovement();
 
             _rigidbody.linearVelocity = _velocity;
 
@@ -282,11 +288,28 @@ namespace BBUnity.Entities.Controllers.Platforming {
             bool previousQueriesStartInColliders = Physics2D.queriesStartInColliders;
 
             Physics2D.queriesStartInColliders = false;
-            bool groundStaticHit = Physics2D.CapsuleCast(_capsuleCollider.bounds.center, _capsuleCollider.size, _capsuleCollider.direction, 0, Vector2.down, _collisionDistance, _staticLayers);
-            bool groundPlatformHit = Physics2D.CapsuleCast(_capsuleCollider.bounds.center, _capsuleCollider.size, _capsuleCollider.direction, 0, Vector2.down, _collisionDistance, _platformLayers);
+
+            // Extend the downward check when already grounded and moving horizontally so the
+            // character doesn't briefly leave ground when the floor drops away on a downhill slope.
+            float groundCheckDist = _collisionDistance;
+            if (_state.IsGrounded && Mathf.Abs(_velocity.x) > float.Epsilon) {
+                groundCheckDist += _slopeStickDistance;
+            }
+
+            RaycastHit2D groundStaticHit = Physics2D.CapsuleCast(_capsuleCollider.bounds.center, _capsuleCollider.size, _capsuleCollider.direction, 0, Vector2.down, groundCheckDist, _staticLayers);
+            RaycastHit2D groundPlatformHit = Physics2D.CapsuleCast(_capsuleCollider.bounds.center, _capsuleCollider.size, _capsuleCollider.direction, 0, Vector2.down, groundCheckDist, _platformLayers);
             bool ceilingStaticHit = Physics2D.CapsuleCast(_capsuleCollider.bounds.center, _capsuleCollider.size, _capsuleCollider.direction, 0, Vector2.up, _collisionDistance, _staticLayers);
 
             _state.SetCollisionState(up: ceilingStaticHit, down: groundStaticHit || groundPlatformHit);
+
+            // Store the surface normal so ApplySlopeMovement can project velocity along slopes.
+            if (groundStaticHit) {
+                _groundNormal = groundStaticHit.normal;
+            } else if (groundPlatformHit) {
+                _groundNormal = groundPlatformHit.normal;
+            } else {
+                _groundNormal = Vector2.up;
+            }
 
             if (_state.IsHittingHead) {
                 _velocity.y = Mathf.Min(0, _velocity.y);
@@ -320,13 +343,29 @@ namespace BBUnity.Entities.Controllers.Platforming {
             }
         }
 
+        private void ApplySlopeMovement() {
+            // Skip when airborne, on flat ground, standing still, or jumping this frame
+            // (jumping must preserve the full vertical jump force, not the slope's y component).
+            if (!_state.IsGrounded || _groundNormal == Vector2.up || Mathf.Abs(_velocity.x) < float.Epsilon || _inputState.Jump) {
+                return;
+            }
+
+            // slopeRight is the unit vector pointing along the slope surface in the +x direction.
+            // For flat ground (normal = (0,1)) this equals (1,0), so projection is a no-op.
+            // For a slope with normal = (-sinθ, cosθ): slopeRight = (cosθ, sinθ) — correctly inclined.
+            Vector2 slopeRight = new Vector2(_groundNormal.y, -_groundNormal.x);
+            float speed = Mathf.Abs(_velocity.x);
+            int direction = _velocity.x > 0 ? 1 : -1;
+            _velocity = slopeRight * (speed * direction);
+        }
+
         private void ApplyGravity() {
             if (_state.IsGrounded && _velocity.y <= 0.0f) {
                 _velocity.y = _verticalGroundingForce;
             } else {
                 var inAirGravity = _verticalFallAcceleration;
 
-                if (!_inputState.JumpPressed && _velocity.y > 0) {
+                if(!_inputState.JumpPressed && _velocity.y > 0) {
                     inAirGravity *= _earlyJumpReleaseGravityModifier;
                 }
 

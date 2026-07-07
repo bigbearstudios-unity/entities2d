@@ -46,7 +46,7 @@ namespace BBUnity.Entities.Controllers {
 
         private void Awake() {
             ObjectPool pool = ObjectPool.FindInScene("Effect Pool");
-            pool ??= Utilities.Create.GameObject("Effect Pool", new[] { typeof(ObjectPool) }).GetComponent<ObjectPool>();
+            pool ??= Utilities.Create.GameObject("Effect Pool", components: new[] { typeof(ObjectPool) }).GetComponent<ObjectPool>();
 
             foreach (EffectReference effectReference in _effects) {
                 if (effectReference.Name == null) {

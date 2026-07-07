@@ -1,12 +1,11 @@
-using BBUnity;
+using UnityEngine;
 
 namespace BBUnity.Entities {
 
     /// <summary>
-    /// The base class for all Entities. This inhertits from BBMonoBehaviour
-    /// and implements IEnity.
+    /// The base class for all Entities. Implements IEntity.
     /// </summary>
-    public class Entity : BBMonoBehaviour, IEntity {
+    public class Entity : MonoBehaviour, IEntity {
 
         /*
          * The lifecycle functions which are called for each entity
