@@ -221,6 +221,9 @@ namespace BBUnity.Entities.Controllers.Platforming {
 
         private Vector2 _groundNormal = Vector2.up;
 
+        private bool _horizontalVelocityOverrideActive = false;
+        private float _horizontalVelocityOverrideValue = 0f;
+
 
         private void Awake() {
             _rigidbody = GetComponent<Rigidbody2D>() ?? throw new System.Exception("A 'Rigidbody' component is required");
@@ -238,6 +241,20 @@ namespace BBUnity.Entities.Controllers.Platforming {
             ) {
             _inputState.SetHorizontalMovement(horizontalMovement, _snapInputMovement);
             _inputState.SetJump(jump, jumpPressed);
+        }
+
+        /// <summary>
+        /// Bypasses normal acceleration and deceleration to apply an exact horizontal velocity.
+        /// Call ClearHorizontalVelocityOverride() to return to normal movement.
+        /// </summary>
+        public void SetHorizontalVelocityOverride(float velocity) {
+            _horizontalVelocityOverrideActive = true;
+            _horizontalVelocityOverrideValue = velocity;
+        }
+
+        public void ClearHorizontalVelocityOverride() {
+            _horizontalVelocityOverrideActive = false;
+            _horizontalVelocityOverrideValue = 0f;
         }
 
         public void TogglePlatformCollision(float toogleBackAfter = 0.4f) {
@@ -335,6 +352,11 @@ namespace BBUnity.Entities.Controllers.Platforming {
         }
 
         private void ApplyHorizontalMovement() {
+            if (_horizontalVelocityOverrideActive) {
+                _velocity.x = _horizontalVelocityOverrideValue;
+                return;
+            }
+
             if (_inputState.HasHorizontalMovement) {
                 _velocity.x = Mathf.MoveTowards(_velocity.x, _inputState.HorizontalMovement * _horizontalMaxmumSpeed, _horizontalAcceleration * Time.fixedDeltaTime);
             } else {
