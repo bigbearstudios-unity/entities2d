@@ -19,10 +19,6 @@ namespace BBUnity.Entities.Controllers {
         private Animator _animator;
         private Dictionary<string, bool> _animationEvents = new Dictionary<string, bool>();
 
-        public bool AnimationComplete {
-            get { return _animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1.0f; }
-        }
-
         /*
          * Unity Functionality
          */

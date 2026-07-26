@@ -37,25 +37,42 @@ namespace BBUnity.Entities.Controllers {
         }
     }
 
-    // TODO
-    // We should figure out a way to remove the ability to add 'State' to the state machine
-    // here and enforce the 'EntityState' being required
-
+    /// <summary>
+    /// See <see cref="BBUnity.Entities.Controllers.InputController"/> for the rationale behind
+    /// this execution order value and an important caveat about it not being inherited by
+    /// concrete subclasses (e.g. PlayerStateController, EnemyStateController).
+    /// </summary>
     [AddComponentMenu(""), DefaultExecutionOrder(5)]
     public class StateController : EntityController {
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         StateMachine _stateMachine = new StateMachine();
 
         [SerializeField, ReadOnly]
         private string _currentState = "Not Set";
 
+        // Registration (AddState) and initialisation (EntityState.Start()) are kept as separate
+        // phases: every state a controller will ever have is registered first, and only once
+        // RegisterStates() has fully returned do any of their Start() methods run. This means a
+        // state's Start() can safely assume every sibling state on this controller already
+        // exists, rather than only the ones registered before it.
+        private readonly List<EntityState> _registeredStates = new List<EntityState>();
+        private string _initialStateKey;
+
         protected virtual void RegisterStates() { }
 
         protected void Start() {
             RegisterStates();
+
+            foreach (EntityState state in _registeredStates) {
+                state.Start();
+            }
+
+            if (_initialStateKey != null) {
+                _stateMachine.SetState(_initialStateKey, true);
+            }
         }
 
         /// <summary>
@@ -70,24 +87,25 @@ namespace BBUnity.Entities.Controllers {
         }
 
         /// <summary>
-        /// 
+        /// Registers a state with this controller. The state's Start() is deferred until every
+        /// state registered via RegisterStates() exists, and setState only takes effect (calling
+        /// Enter() on the state machine) after all of those Start() calls have completed.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="state"></param>
         /// <param name="setState"></param>
         public void AddState(string key, EntityState state, bool setState = false) {
             _stateMachine.AddState(key, state);
-
             state.SetStateController(this);
-            state.Start();
+            _registeredStates.Add(state);
 
             if (setState) {
-                _stateMachine.SetState(key, true);
+                _initialStateKey = key;
             }
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="states"></param>
         public void AddStates(EntityStateParameters stateParameters) {

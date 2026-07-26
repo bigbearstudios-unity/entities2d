@@ -1,8 +1,10 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 using BBUnity.Entities.Controllers.Base;
 using BBUnity.Entities.Controllers.Platforming.Internal;
+using BBUnity.Movement;
 
 namespace BBUnity.Entities.Controllers.Platforming {
 
@@ -76,7 +78,7 @@ namespace BBUnity.Entities.Controllers.Platforming {
         }
 
         public bool HasLanded {
-            get { return WasAirBorne && IsGrounded; }
+            get { return WasAirborne && IsGrounded; }
         }
 
         public bool HasBecomeAirborne {
@@ -87,7 +89,7 @@ namespace BBUnity.Entities.Controllers.Platforming {
             get { return _down.PreviousFrame; }
         }
 
-        public bool WasAirBorne {
+        public bool WasAirborne {
             get { return !WasGrounded; }
         }
 
@@ -140,7 +142,7 @@ namespace BBUnity.Entities.Controllers.Platforming {
         private float _collisionDistance = 0.05f;
 
         /* ---------------------------------------------*/
-        [Header("Hoizontal Movement")]
+        [Header("Horizontal Movement")]
 
         [SerializeField, Tooltip("")]
         private float _horizontalMaxmumSpeed = 9.0f;
@@ -182,8 +184,10 @@ namespace BBUnity.Entities.Controllers.Platforming {
         private float _earlyJumpReleaseGravityModifier = 3;
         private bool _earlyJumpReleaseActive = false;
 
-        [SerializeField, Tooltip("")]
-        private float _coyoteTime = 0.15f;
+        [SerializeField, Tooltip("Grace period after walking off a ledge during which a jump input is still honoured.")]
+        private CoyoteTime _coyoteTime = new CoyoteTime();
+
+        private bool _justJumped = false;
 
         /* ---------------------------------------------*/
         [Header("Slope Handling")]
@@ -235,9 +239,7 @@ namespace BBUnity.Entities.Controllers.Platforming {
         public void ApplyMovement(
             float horizontalMovement,
             bool jump = false,
-            bool jumpPressed = false,
-            float horizontalAcceleration = 0.0f,
-            bool fallThroughPlatforms = false
+            bool jumpPressed = false
             ) {
             _inputState.SetHorizontalMovement(horizontalMovement, _snapInputMovement);
             _inputState.SetJump(jump, jumpPressed);
@@ -257,30 +259,38 @@ namespace BBUnity.Entities.Controllers.Platforming {
             _horizontalVelocityOverrideValue = 0f;
         }
 
-        public void TogglePlatformCollision(float toogleBackAfter = 0.4f) {
+        public void TogglePlatformCollision(float toggleBackAfter = 0.4f) {
             if (_togglingPlatformCollisions) { return; }
 
-            StartCoroutine(TogglePlatformCollisionsOver(toogleBackAfter));
-        }
-
-        private int LayerMaskToLayer(int bitmask) {
-            int result = bitmask > 0 ? 0 : 31;
-            while (bitmask > 1) {
-                bitmask = bitmask >> 1;
-                result++;
-            }
-            return result;
+            StartCoroutine(TogglePlatformCollisionsOver(toggleBackAfter));
         }
 
         private bool _togglingPlatformCollisions = false;
+        private readonly List<Collider2D> _ignoredPlatformColliders = new List<Collider2D>();
+
+        // Ignores collision only against the specific platform colliders the player is
+        // currently overlapping, rather than the whole layer, and always restores them via
+        // finally — even if the coroutine is stopped early.
         private IEnumerator TogglePlatformCollisionsOver(float waitTime) {
             _togglingPlatformCollisions = true;
 
-            Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMaskToLayer(_platformLayers), true);
-            yield return new WaitForSeconds(waitTime);
+            try {
+                foreach (Collider2D platformCollider in Physics2D.OverlapCapsuleAll(_capsuleCollider.bounds.center, _capsuleCollider.size, _capsuleCollider.direction, 0, _platformLayers)) {
+                    Physics2D.IgnoreCollision(_capsuleCollider, platformCollider, true);
+                    _ignoredPlatformColliders.Add(platformCollider);
+                }
 
-            _togglingPlatformCollisions = false;
-            Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMaskToLayer(_platformLayers), false);
+                yield return new WaitForSeconds(waitTime);
+            } finally {
+                foreach (Collider2D platformCollider in _ignoredPlatformColliders) {
+                    if (platformCollider != null) {
+                        Physics2D.IgnoreCollision(_capsuleCollider, platformCollider, false);
+                    }
+                }
+
+                _ignoredPlatformColliders.Clear();
+                _togglingPlatformCollisions = false;
+            }
         }
 
         public void ApplyZeroHorizontalMovement() {
@@ -334,7 +344,18 @@ namespace BBUnity.Entities.Controllers.Platforming {
 
             if (_state.IsGrounded) {
                 _earlyJumpReleaseActive = false;
+                _coyoteTime.Reset();
+            } else if (_state.HasBecomeAirborne) {
+                // Only start the grace window when the ground disappeared out from under us
+                // (walking off a ledge). A voluntary jump already leaves the ground on purpose,
+                // so it must not also grant a coyote-time jump.
+                if (!_justJumped) {
+                    _coyoteTime.SetAvailable(true);
+                    _coyoteTime.StartTimer();
+                }
             }
+
+            _justJumped = false;
 
             Physics2D.queriesStartInColliders = previousQueriesStartInColliders;
         }
@@ -344,11 +365,15 @@ namespace BBUnity.Entities.Controllers.Platforming {
                 if (_inputState.Jump) {
                     ApplyJumpForce();
                 }
+            } else if (_inputState.Jump && _coyoteTime.IsAvailable) {
+                ApplyJumpForce();
             }
         }
 
         private void ApplyJumpForce() {
             _velocity.y = _verticalJumpForce;
+            _coyoteTime.Reset();
+            _justJumped = true;
         }
 
         private void ApplyHorizontalMovement() {

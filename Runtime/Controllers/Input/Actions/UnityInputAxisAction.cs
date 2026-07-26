@@ -18,11 +18,11 @@ namespace BBUnity.Entities.Controllers.Input.Actions {
         }
 
         public bool HasYMovement {
-            get { return _movement.y < 0.0f; }
+            get { return _movement.y > float.Epsilon || _movement.y < -float.Epsilon; }
         }
 
         public bool HasXMovement {
-            get { return _movement.x > 0.0f; }
+            get { return _movement.x > float.Epsilon || _movement.x < -float.Epsilon; }
         }
 
         public UnityInputAxisAction(PlayerInput input, UnityAxisActionMapping mapping) : base(input, mapping) {

@@ -46,15 +46,19 @@ namespace BBUnity.Entities.Controllers {
 
         private void Awake() {
             ObjectPool pool = ObjectPool.FindInScene("Effect Pool");
-            pool ??= Utilities.Create.GameObject("Effect Pool", components: new[] { typeof(ObjectPool) }).GetComponent<ObjectPool>();
+            if (pool == null) {
+                Debug.Log($"EffectController on '{gameObject.name}' found no existing \"Effect Pool\" in the scene; creating one.", this);
+                pool = Utilities.Create.GameObject("Effect Pool", components: new[] { typeof(ObjectPool) }).GetComponent<ObjectPool>();
+            }
 
             foreach (EffectReference effectReference in _effects) {
                 if (effectReference.Name == null) {
-                    
+                    Debug.LogError($"EffectController on '{gameObject.name}' has an EffectReference with no name set; it will be skipped.", this);
+                    continue;
                 }
 
                 if (effectReference.Prefab == null) {
-                    Debug.LogError("");
+                    Debug.LogError($"EffectController on '{gameObject.name}' has no prefab assigned for effect '{effectReference.Name}'; it will be skipped.", this);
                     continue;
                 }
 
@@ -72,7 +76,10 @@ namespace BBUnity.Entities.Controllers {
         }
 
         public void InstantiateEffect(string name) {
-            EffectDictionaryReference reference = _internalEffects[name];
+            if (!_internalEffects.TryGetValue(name, out EffectDictionaryReference reference)) {
+                Debug.LogError($"EffectController on '{gameObject.name}' has no registered effect named '{name}'.", this);
+                return;
+            }
 
             PoolBehaviour obj = reference._poolReference.Spawn();
 
@@ -81,7 +88,10 @@ namespace BBUnity.Entities.Controllers {
         }
 
         public void InstantiateEffect(string name, Vector3 position) {
-            EffectDictionaryReference reference = _internalEffects[name];
+            if (!_internalEffects.TryGetValue(name, out EffectDictionaryReference reference)) {
+                Debug.LogError($"EffectController on '{gameObject.name}' has no registered effect named '{name}'.", this);
+                return;
+            }
 
             PoolBehaviour obj = reference._poolReference.Spawn();
             obj.transform.localScale = gameObject.transform.localScale;

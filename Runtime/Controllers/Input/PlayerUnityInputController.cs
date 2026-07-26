@@ -12,6 +12,11 @@ namespace BBUnity.Entities.Controllers.Input {
         public InvalidPlayerInputObjectException() : base("A Player Input object is required by the UnityPlayerInputController") { }
     }
 
+    internal class MissingActionMappingException : System.Exception {
+        public MissingActionMappingException(string key, string gameObjectName)
+            : base($"No action mapping named '{key}' was found on the PlayerUnityInputController attached to '{gameObjectName}'. Check the Action Mappings list in the inspector.") { }
+    }
+
     [RequireComponent(typeof(PlayerInput))]
     public class PlayerUnityInputController : InputController {
         [SerializeField, Tooltip("The reference to the Unity Player Input Component")]
@@ -31,6 +36,10 @@ namespace BBUnity.Entities.Controllers.Input {
 
         public void _Editor_AddButtonMapping() {
             _actionMappings.Add(new UnityButtonActionMapping());
+        }
+
+        public void _Editor_AddAxisMapping() {
+            _actionMappings.Add(new UnityAxisActionMapping());
         }
 
         private void Awake() {
@@ -65,25 +74,33 @@ namespace BBUnity.Entities.Controllers.Input {
         }
 
         public UnityInputAxisAction Movement {
-            get { return (UnityInputAxisAction)_actions["Movement"]; }
+            get { return (UnityInputAxisAction)GetAction("Movement"); }
         }
 
         public UnityInputAxisAction Axis(string key) {
-            return (UnityInputAxisAction)_actions[key];
+            return (UnityInputAxisAction)GetAction(key);
         }
 
         public UnityInputButtonAction Button(string key) {
-            return (UnityInputButtonAction)_actions[key];
+            return (UnityInputButtonAction)GetAction(key);
+        }
+
+        private UnityInputAction GetAction(string key) {
+            if (!_actions.TryGetValue(key, out UnityInputAction action)) {
+                throw new MissingActionMappingException(key, gameObject.name);
+            }
+
+            return action;
         }
 
         public bool HasMovementMapping {
             get {
                 foreach(UnityActionMapping mapping in _actionMappings) {
-                    if(mapping.IsButtonType) { return true; }
+                    if(mapping.IsMovementType) { return true; }
                 }
 
                 return false;
-            } 
+            }
         }
 
         private void Reset() {

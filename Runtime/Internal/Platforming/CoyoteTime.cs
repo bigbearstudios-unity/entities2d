@@ -14,19 +14,20 @@ namespace BBUnity.Movement {
         private float _thresholdTime = 0.1f;
 
         private bool _isAvailable = false;
-        private float _startedAt = float.MinValue;
+        private bool _timerStarted = false;
+        private float _startedAt;
 
         public CoyoteTime() {
             Reset();
         }
 
         /// <summary>
-        /// Resets the CoyoteTime, this sets avalible to false and startedAt
-        /// to a 0.0..
+        /// Resets the CoyoteTime, this sets avalible to false and clears the timer
         /// </summary>
         public void Reset() {
             _isAvailable = false;
-            _startedAt = float.MinValue;
+            _timerStarted = false;
+            _startedAt = 0.0f;
         }
 
         /// <summary>
@@ -34,6 +35,7 @@ namespace BBUnity.Movement {
         /// </summary>
         public void StartTimer() {
             _startedAt = Time.time;
+            _timerStarted = true;
         }
 
         /// <summary>
@@ -49,7 +51,7 @@ namespace BBUnity.Movement {
         /// </summary>
         /// <value></value>
         public bool IsAvailable {
-           get { return _isAvailable && (Time.time - _startedAt) < _thresholdTime; } 
+           get { return _isAvailable && _timerStarted && (Time.time - _startedAt) < _thresholdTime; }
         }
     }    
 }

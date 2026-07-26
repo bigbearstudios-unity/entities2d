@@ -12,9 +12,13 @@ namespace BBUnity.Gameplay.Attributes {
     /// and attributes added via:
     /// [SerializeField]
     /// Health _health;
-    /// 
+    ///
     /// The only real functionality of this controller is to call 'Reset' on the
     /// Attributes
+    ///
+    /// See <see cref="BBUnity.Entities.Controllers.InputController"/> for the rationale behind
+    /// this execution order value and an important caveat about it not being inherited by
+    /// concrete subclasses (e.g. PlayerAttributeController, EnemyAttributeController).
     /// </summary>
     [DefaultExecutionOrder(10)]
     public class AttributeController : EntityController {
