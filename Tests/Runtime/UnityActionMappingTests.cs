@@ -4,15 +4,7 @@ using BBUnity.Entities.Controllers.Input.Mappings;
 
 namespace BBUnity.Entities.Tests {
     public class UnityActionMappingTests {
-
-        // ----------------------------------------------------------------
-        // Issue 1 — HasMovementMapping (on PlayerUnityInputController) relies
-        // on these type flags being correct. A UnityMovementActionMapping must
-        // report IsMovementType == true and IsButtonType == false, otherwise a
-        // loop that checks "IsButtonType" to detect a movement mapping (the
-        // original bug) would silently misreport.
-        // ----------------------------------------------------------------
-
+    
         [Test]
         public void MovementMapping_ReportsMovementType() {
             var mapping = new UnityMovementActionMapping();
