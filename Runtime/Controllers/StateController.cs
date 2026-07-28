@@ -12,31 +12,6 @@ using BBUnity.Entities.Controllers.States;
 
 namespace BBUnity.Entities.Controllers {
 
-    sealed public class EntityStateParameter {
-        private string _key;
-        private EntityState _state;
-        private bool _setCurrentState;
-
-        public string Key { get { return _key; } }
-        public EntityState State { get { return _state; } }
-        public bool SetCurrentState { get { return _setCurrentState; } }
-
-        public EntityStateParameter(string key, EntityState state, bool setCurrentState = false) {
-            if (key == null) throw new System.ArgumentNullException("key");
-            if (state == null) throw new System.ArgumentNullException("state");
-
-            _key = key;
-            _state = state;
-            _setCurrentState = setCurrentState;
-        }
-    }
-
-    public class EntityStateParameters : List<EntityStateParameter> {
-        public void Add(string key, EntityState state, bool setCurrentState = false) {
-            Add(new EntityStateParameter(key, state, setCurrentState));
-        }
-    }
-
     /// <summary>
     /// See <see cref="BBUnity.Entities.Controllers.InputController"/> for the rationale behind
     /// this execution order value and an important caveat about it not being inherited by
@@ -53,6 +28,16 @@ namespace BBUnity.Entities.Controllers {
         [SerializeField, ReadOnly]
         private string _currentState = "Not Set";
 
+        // Editor-configured states (see StateControllerInspector). This is the preferred way to
+        // register states — no subclass/RegisterStates() override required. _defaultState holds
+        // a shared reference to whichever entry in _states is marked as the initial state; kept
+        // as a reference rather than a list index so it stays correct across reordering.
+        [SerializeReference]
+        private List<EntityState> _states = new List<EntityState>();
+
+        [SerializeReference]
+        private EntityState _defaultState;
+
         // Registration (AddState) and initialisation (EntityState.Start()) are kept as separate
         // phases: every state a controller will ever have is registered first, and only once
         // RegisterStates() has fully returned do any of their Start() methods run. This means a
@@ -61,9 +46,15 @@ namespace BBUnity.Entities.Controllers {
         private readonly List<EntityState> _registeredStates = new List<EntityState>();
         private string _initialStateKey;
 
+        /// <summary>
+        /// Optional extension point for registering states in code, in addition to (or instead
+        /// of) the editor-configured list above. Runs after the editor-configured states, so a
+        /// state added here with isDefault: true takes precedence over the inspector's default.
+        /// </summary>
         protected virtual void RegisterStates() { }
 
         protected void Start() {
+            RegisterSerializedStates();
             RegisterStates();
 
             foreach (EntityState state in _registeredStates) {
@@ -72,6 +63,14 @@ namespace BBUnity.Entities.Controllers {
 
             if (_initialStateKey != null) {
                 _stateMachine.SetState(_initialStateKey, true);
+            }
+        }
+
+        private void RegisterSerializedStates() {
+            foreach (EntityState state in _states) {
+                if (state == null) { continue; }
+
+                AddState(state, isDefault: state == _defaultState);
             }
         }
 
@@ -105,13 +104,17 @@ namespace BBUnity.Entities.Controllers {
         }
 
         /// <summary>
-        ///
+        /// Registers a state, deriving its key from its own type (see
+        /// <see cref="EntityState.Key{T}"/>) instead of requiring a hand-written key constant.
+        /// This is the preferred way to register a state — the string-keyed overload above still
+        /// exists because the underlying StateMachine (bbunity-state-machines) is key-based, but
+        /// callers should not need to think about keys directly.
         /// </summary>
-        /// <param name="states"></param>
-        public void AddStates(EntityStateParameters stateParameters) {
-            foreach (EntityStateParameter p in stateParameters) {
-                AddState(p.Key, p.State, p.SetCurrentState);
-            }
+        /// <typeparam name="T"></typeparam>
+        /// <param name="state"></param>
+        /// <param name="isDefault"></param>
+        public void AddState<T>(T state, bool isDefault = false) where T : EntityState {
+            AddState(EntityState.KeyFor(state.GetType()), state, isDefault);
         }
     }
 }

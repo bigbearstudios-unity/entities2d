@@ -6,7 +6,8 @@
         "Unity.BBUnityTestSupport",
         "Unity.BBUnityEntities2D",
         "Unity.BBUnityPools",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.BBUnityStateMachine"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
